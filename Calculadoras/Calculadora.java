@@ -11,8 +11,6 @@ public class Calculadora {
         int contadorOperaciones = 0; // Contador de operaciones
 
         while (true) {
-            long inicio = System.nanoTime(); // Iniciar temporizador
-
             // Pedir al usuario que ingrese dos números grandes
             System.out.print("Ingresa el primer número: ");
             BigDecimal numero1 = scanner.nextBigDecimal();
@@ -29,8 +27,12 @@ public class Calculadora {
             System.out.print("Ingresa el número de la operación (1/2/3/4): ");
             int operacion = scanner.nextInt();
 
-            // Realizar la operación seleccionada
             BigDecimal resultado = null;
+
+            // Iniciar temporizador justo antes de la operación
+            long inicio = System.nanoTime();
+
+            // Realizar la operación seleccionada
             switch (operacion) {
                 case 1:
                     resultado = numero1.add(numero2);
@@ -57,7 +59,8 @@ public class Calculadora {
                     System.out.println("Operación no válida. Inténtalo de nuevo.");
             }
 
-            long fin = System.nanoTime(); // Terminar temporizador
+            // Terminar temporizador justo después de la operación
+            long fin = System.nanoTime();
             long duracion = (fin - inicio) / 1_000_000; // Convertir a milisegundos
 
             // Incrementar el contador de operaciones
