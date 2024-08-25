@@ -8,7 +8,11 @@ public class Calculadora {
 
         System.out.println("Bienvenido a la calculadora.");
 
+        int contadorOperaciones = 0; // Contador de operaciones
+
         while (true) {
+            long inicio = System.nanoTime(); // Iniciar temporizador
+
             // Pedir al usuario que ingrese dos números grandes
             System.out.print("Ingresa el primer número: ");
             BigDecimal numero1 = scanner.nextBigDecimal();
@@ -53,6 +57,16 @@ public class Calculadora {
                     System.out.println("Operación no válida. Inténtalo de nuevo.");
             }
 
+            long fin = System.nanoTime(); // Terminar temporizador
+            long duracion = (fin - inicio) / 1_000_000; // Convertir a milisegundos
+
+            // Incrementar el contador de operaciones
+            contadorOperaciones++;
+
+            // Mostrar el tiempo de ejecución y el contador de operaciones
+            System.out.println("Tiempo de ejecución: " + duracion + " ms");
+            System.out.println("Número de operaciones realizadas: " + contadorOperaciones);
+
             // Preguntar si desea realizar otra operación
             System.out.print("¿Deseas realizar otra operación? (s/n): ");
             char continuar = scanner.next().charAt(0);
@@ -65,4 +79,3 @@ public class Calculadora {
         scanner.close();
     }
 }
-

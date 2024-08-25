@@ -1,7 +1,14 @@
+import time
+
 def calculadora():
     print("Bienvenido a la calculadora.")
     
+    contador_operaciones = 0  # Contador de operaciones
+    
     while True:
+        # Iniciar temporizador
+        inicio = time.time()
+        
         # Pedir al usuario que ingrese dos números grandes
         numero1 = int(input("Ingresa el primer número: "))
         numero2 = int(input("Ingresa el segundo número: "))
@@ -33,6 +40,17 @@ def calculadora():
         else:
             print("Operación no válida. Inténtalo de nuevo.")
         
+        # Terminar temporizador
+        fin = time.time()
+        duracion = fin - inicio  # Duración en segundos
+        
+        # Incrementar el contador de operaciones
+        contador_operaciones += 1
+        
+        # Mostrar el tiempo de ejecución y el contador de operaciones
+        print(f"Tiempo de ejecución: {duracion:.4f} milisegundos")
+        print(f"Número de operaciones realizadas: {contador_operaciones}")
+        
         # Preguntar si desea realizar otra operación
         continuar = input("¿Deseas realizar otra operación? (s/n): ")
         if continuar.lower() != 's':
@@ -41,3 +59,4 @@ def calculadora():
 
 # Ejecutar la calculadora
 calculadora()
+
