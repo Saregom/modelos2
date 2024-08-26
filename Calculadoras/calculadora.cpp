@@ -79,13 +79,16 @@ std::string restaNúmerosGrandes(const std::string& num1, const std::string& num
     return resultado;
 }
 
-// Función para multiplicar dos números grandes representados como strings
 std::string multiplicaNúmerosGrandes(const std::string& num1, const std::string& num2) {
-    // El tamaño máximo del resultado será la suma de las longitudes de los dos números
-    std::string resultado(num1.length() + num2.length(), '0');
-    
+    if (num1 == "0" || num2 == "0") {
+        return "0";
+    }
+
     int n1 = num1.length();
     int n2 = num2.length();
+    
+    // El tamaño máximo del resultado será la suma de las longitudes de los dos números
+    std::string resultado(n1 + n2, '0');
     
     // Multiplicación de dígito a dígito
     for (int i = n1 - 1; i >= 0; --i) {
@@ -98,7 +101,7 @@ std::string multiplicaNúmerosGrandes(const std::string& num1, const std::string
             carry = suma / 10;
             resultado[i + j + 1] = (suma % 10) + '0';
         }
-        resultado[i + n2] += carry;  // Aquí se maneja el carry para la posición superior
+        resultado[i] += carry;  // Ajuste del acarreo en la posición correcta
     }
     
     // Eliminar ceros a la izquierda
