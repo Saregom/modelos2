@@ -182,8 +182,8 @@ int main() {
     }
 
     auto end = std::chrono::high_resolution_clock::now(); // Finalizar temporizador
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ms" << std::endl;
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    std::cout << "Tiempo de ejecucion: " << elapsed.count() << " ns" << std::endl;
 
     return 0;
 }
