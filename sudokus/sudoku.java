@@ -1,96 +1,89 @@
-package sudokus;
-/*
-* Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-*/
-
 /**
- *
+*
 * @author santi
 */
+
 class Sudoku {
-    public static boolean esValido(int[][] tablero, int fila, int columna, int num) {
-        // Verifica si el número ya está en la fila
-        for (int i = 0; i < 9; i++) {
-            if (tablero[fila][i] == num) {
+    public static boolean playable_num(int[][] sudoku, int row, int column, int number) {
+        for(int i=0; i<9; i++){
+            if (sudoku[row][i] == number || sudoku[i][column] == number){
                 return false;
             }
         }
 
-        // Verifica si el número ya está en la columna
-        for (int i = 0; i < 9; i++) {
-            if (tablero[i][columna] == num) {
-                return false;
-            }
-        }
-
-        // Verifica si el número ya está en el subcuadro 3x3
-        int inicioFila = (fila / 3) * 3;
-        int inicioColumna = (columna / 3) * 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (tablero[inicioFila + i][inicioColumna + j] == num) {
+        for(int i=0; i<3; i++){
+            for(int j=0; j<3; j++){
+                if(sudoku[(row/3)*3 + i][(column/3)*3 + j] == number){
                     return false;
                 }
             }
         }
-
         return true;
     }
 
-    public static boolean resolverSudoku(int[][] tablero) {
-        for (int fila = 0; fila < 9; fila++) {
-            for (int columna = 0; columna < 9; columna++) {
-                if (tablero[fila][columna] == 0) {  // Si la celda está vacía
-                    for (int num = 1; num <= 9; num++) {
-                        if (esValido(tablero, fila, columna, num)) {
-                            tablero[fila][columna] = num;
-
-                            if (resolverSudoku(tablero)) {
-                                return true;
-                            }
-
-                            tablero[fila][columna] = 0;  // Backtrack
+    public static boolean solve(int[][] sudoku){
+        for(int row=0; row<9; row++){
+            for(int column=0; column<9; column++){
+                if(sudoku[row][column] == 0){ 
+                    for(int number = 1; number <= 9; number++){
+                        if(playable_num(sudoku, row, column, number)){
+                            sudoku[row][column] = number;
+                            if(solve(sudoku)) return true;
+                            sudoku[row][column] = 0; 
                         }
                     }
-                    return false;  // No se encontró un número válido, se retrocede
+                    return false; 
                 }
             }
         }
-        return true;  // El Sudoku ha sido resuelto
+        return true;
     }
 
-    public static void imprimirTablero(int[][] tablero) {
-        for (int fila = 0; fila < 9; fila++) {
-            for (int columna = 0; columna < 9; columna++) {
-                System.out.print(tablero[fila][columna] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    public static void main(String[] args) {
-        int[][] tablero = {
-            {5, 3, 0, 0, 7, 0, 0, 0, 0},
-            {6, 0, 0, 1, 9, 5, 0, 0, 0},
-            {0, 9, 8, 0, 0, 0, 0, 6, 0},
-            {8, 0, 0, 0, 6, 0, 0, 0, 3},
-            {4, 0, 0, 8, 0, 3, 0, 0, 1},
-            {7, 0, 0, 0, 2, 0, 0, 0, 6},
-            {0, 6, 0, 0, 0, 0, 2, 8, 0},
-            {0, 0, 0, 4, 1, 9, 0, 0, 5},
-            {0, 0, 0, 0, 8, 0, 0, 7, 9}
+    public static void main(String[] args){
+        int[][] board1 = {
+            {9, 0, 0, 0, 4, 5, 0, 0, 0},
+            {0, 0, 0, 0, 6, 0, 0, 0, 0},
+            {0, 8, 6, 0, 0, 0, 0, 2, 0},
+            {4, 0, 7, 1, 0, 0, 0, 0, 2},
+            {3, 5, 0, 4, 0, 8, 0, 6, 1},
+            {6, 0, 0, 0, 0, 7, 3, 0, 4},
+            {0, 4, 0, 0, 0, 0, 2, 1, 0},
+            {0, 0, 0, 0, 5, 0, 0, 0, 0},
+            {0, 0, 0, 3, 7, 0, 0, 0, 5}
         };
 
+        int[][] board2 = {
+            {1, 0, 6, 9, 0, 0, 0, 0, 0},
+            {0, 3, 0, 0, 5, 0, 1, 2, 8},
+            {0, 0, 0, 0, 0, 0, 4, 0, 0},
+            {8, 0, 0, 0, 0, 5, 0, 0, 4},
+            {0, 0, 0, 0, 0, 0, 0, 0, 7},
+            {0, 2, 0, 0, 8, 0, 0, 1, 3},
+            {0, 4, 0, 0, 0, 0, 5, 0, 0},
+            {0, 0, 0, 0, 1, 0, 7, 0, 0},
+            {0, 0, 3, 0, 0, 6, 0, 4, 1}
+        };
+
+        int[][] sudoku = board2;
+
         long startTime = System.nanoTime();
-        long endTime = 0;
-        if (resolverSudoku(tablero)) {
-            endTime = System.nanoTime();
-            imprimirTablero(tablero);
-        } else {
-            System.out.println("No se encontró solución.");
+        boolean solved_sudoku = solve(sudoku);
+        long endTime = System.nanoTime();
+
+        if(solved_sudoku){
+            for(int row=0; row<9; row++) {
+                if(row % 3 == 0) System.out.print(" -".repeat(13) + "\n");
+                for(int column=0; column<9; column++) {
+                    if(column % 3 == 0) System.out.print(" |");
+                    System.out.print(" " + sudoku[row][column]);
+                }
+                System.out.print(" |\n");
+            }
+            System.out.print(" -".repeat(13) + "\n");
+        }else{
+            System.out.println("No existe solucion");
         }
         
-        System.out.println("Tiempo de ejecución: " + (endTime - startTime) / 1e9 + " segundos");
+        System.out.println("Tiempo de ejecucion del algoritmo: " + (endTime - startTime) / 1e6 + " milisegundos");
     }
 }
-

@@ -1,65 +1,76 @@
 import time
 
-def es_valido(sudoku, fila, columna, num):
-    # Verifica si el número ya está en la fila
+# Verificar si el numero es jugable
+def playable_num(sudoku, row, column, number):
+    # Verificar si el numero esta en la fila o en la columna
     for i in range(9):
-        if sudoku[fila][i] == num:
+        if sudoku[row][i] == number or sudoku[i][column] == number:
             return False
 
-    # Verifica si el número ya está en la columna
-    for i in range(9):
-        if sudoku[i][columna] == num:
-            return False
-
-    # Verifica si el número ya está en el subcuadro 3x3
-    inicio_fila = (fila // 3) * 3
-    inicio_columna = (columna // 3) * 3
+    # Verifica si el número esta en el submatriz 3x3
     for i in range(3):
         for j in range(3):
-            if sudoku[inicio_fila + i][inicio_columna + j] == num:
+            if sudoku[(row//3)*3 + i][(column//3)*3 + j] == number:
                 return False
-
     return True
 
-def resolver_sudoku(sudoku):
-    for fila in range(9):
-        for columna in range(9):
-            if sudoku[fila][columna] == 0:  # Si la celda está vacía
-                for num in range(1, 10):
-                    if es_valido(sudoku, fila, columna, num):
-                        sudoku[fila][columna] = num
+# resolver sudoku
+def solve(sudoku):
+    for row in range(9):
+        for column in range(9):
+            if sudoku[row][column] == 0:
+                for number in range(1, 10):
+                    if playable_num(sudoku, row, column, number):
+                        sudoku[row][column] = number
+                        if solve(sudoku): return True
+                        sudoku[row][column] = 0 # si no hay numeros disponibles en la celda, se reinicia
+                return False 
+    return True
 
-                        if resolver_sudoku(sudoku):
-                            return True
+if __name__ == '__main__':
+    # sudoku inicial
+    board1 = [
+        [9, 0, 0, 0, 4, 5, 0, 0, 0],
+        [0, 0, 0, 0, 6, 0, 0, 0, 0],
+        [0, 8, 6, 0, 0, 0, 0, 2, 0],
+        [4, 0, 7, 1, 0, 0, 0, 0, 2],
+        [3, 5, 0, 4, 0, 8, 0, 6, 1],
+        [6, 0, 0, 0, 0, 7, 3, 0, 4],
+        [0, 4, 0, 0, 0, 0, 2, 1, 0],
+        [0, 0, 0, 0, 5, 0, 0, 0, 0],
+        [0, 0, 0, 3, 7, 0, 0, 0, 5]
+    ]
 
-                        sudoku[fila][columna] = 0  # Backtrack
+    board2 = [
+        [9, 0, 0, 0, 4, 5, 0, 0, 0],
+        [0, 0, 0, 0, 6, 0, 0, 0, 0],
+        [0, 8, 6, 0, 0, 0, 0, 2, 0],
+        [4, 0, 7, 1, 0, 0, 0, 0, 2],
+        [3, 5, 0, 4, 0, 8, 0, 6, 1],
+        [6, 0, 0, 0, 0, 7, 3, 0, 4],
+        [0, 4, 0, 0, 0, 0, 2, 1, 0],
+        [0, 0, 0, 0, 5, 0, 0, 0, 0],
+        [0, 0, 0, 3, 7, 0, 0, 0, 5]
+    ]
 
-                return False  # No se encontró un número válido, se retrocede
+    sudoku = board1
 
-    return True  # El Sudoku ha sido resuelto
+    start_time = time.perf_counter()
+    solved_sudoku = solve(sudoku)
+    end_time = time.perf_counter()
 
-def imprimir_sudoku(sudoku):
-    for fila in sudoku:
-        print(" ".join(str(num) for num in fila))
+    if solved_sudoku:
+        # Impresion sudoku resuelto
+        for i, row in enumerate(sudoku):
+            if i % 3 == 0: print(" -" * 13)
+            str = ''
+            for j, number in enumerate(row):
+                if j % 3 == 0: str += f' |'
+                str += f' {number}'
+            print(str, '|')
+        print(" -" * 13)
 
-# Ejemplo de uso
-sudoku = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [0, 0, 0, 8, 0, 3, 0, 0, 1],
-    [0, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
+    else:
+        print("No existe solucion")
 
-start_time = time.time()
-if resolver_sudoku(sudoku):
-    end_time = time.time()
-    imprimir_sudoku(sudoku)
-else:
-    print("No se encontró solución.")
-
-print(f"Tiempo de ejecución: {end_time - start_time} segundos.")
+    print(f"Tiempo de ejecucion del algoritmo: {(end_time - start_time)*1000} milisegundos")
