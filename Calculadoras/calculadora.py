@@ -42,12 +42,14 @@ def calculadora():
         
         # Terminar temporizador
         fin = time.perf_counter()
+        
         duracion = (fin - inicio) * 1_000_000  # Duración en nanosegundos
         
         # Incrementar el contador de operaciones
         contador_operaciones += 1
         
         # Mostrar el tiempo de ejecución y el contador de operaciones
+        
         print(f"Tiempo de ejecución: {duracion:.0f} ns")
         print(f"Número de operaciones realizadas: {contador_operaciones}")
         
