@@ -19,7 +19,7 @@ def calculadora():
         operacion = input("Ingresa el número de la operación (1/2/3/4): ")
         
         # Iniciar temporizador justo antes de realizar la operación
-        inicio = time.time()
+        inicio = time.perf_counter()
         
         # Realizar la operación seleccionada
         if operacion == '1':
@@ -41,8 +41,8 @@ def calculadora():
             print("Operación no válida. Inténtalo de nuevo.")
         
         # Terminar temporizador
-        fin = time.time() 
-        duracion = (fin - inicio) * 1000000  # Duración en nanosegundos
+        fin = time.perf_counter()
+        duracion = (fin - inicio) * 1_000_000  # Duración en nanosegundos
         
         # Incrementar el contador de operaciones
         contador_operaciones += 1
