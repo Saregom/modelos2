@@ -9,20 +9,12 @@ def euclides_valor(a, b):
     
 def euclides_referencia(num_list):   
     if num_list[1] > num_list[0]:
-        c = num_list[0]
-        num_list[0] = num_list[1]
-        num_list[1] = c
+        num_list[0], num_list[1] = num_list[1], num_list[0]
 
     while num_list[1] != 0:
         num_list[0], num_list[1] = num_list[1], num_list[0] % num_list[1] 
 
 if __name__ == "__main__":
-    a = 1
-    b = 2
-    
-    a, b = b, a
-    print(a, b)
-
     print('\nCalcular el MCD por el algoritmo de euclides\n')
     num1 = int(input('Ingresa el primer numero: '))
     num2 = int(input('Ingresa el segundo numero: '))
