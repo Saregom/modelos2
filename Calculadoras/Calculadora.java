@@ -6,25 +6,23 @@ public class Calculadora {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Bienvenido a la calculadora.");
+        System.out.println("Bienvenido a la calculadora");
 
-        int contadorOperaciones = 0; // Contador de operaciones
+        int contadorOperaciones = 0;
 
         while (true) {
-            // Pedir al usuario que ingrese dos números grandes
-            System.out.print("Ingresa el primer número: ");
+            System.out.print("Ingresa el primer numero: ");
             BigDecimal numero1 = scanner.nextBigDecimal();
 
-            System.out.print("Ingresa el segundo número: ");
+            System.out.print("Ingresa el segundo numero: ");
             BigDecimal numero2 = scanner.nextBigDecimal();
 
-            // Pedir al usuario que seleccione la operación
-            System.out.println("Elige la operación que deseas realizar:");
+            System.out.println("\nElige la operacion que deseas realizar:");
             System.out.println("1. Suma");
             System.out.println("2. Resta");
-            System.out.println("3. Multiplicación");
-            System.out.println("4. División");
-            System.out.print("Ingresa el número de la operación (1/2/3/4): ");
+            System.out.println("3. Multiplicacion");
+            System.out.println("4. Division");
+            System.out.print("\nIngresa el numero de la operacion (1/2/3/4): ");
             int operacion = scanner.nextInt();
 
             BigDecimal resultado = null;
@@ -61,7 +59,7 @@ public class Calculadora {
 
             // Terminar temporizador justo después de la operación
             long fin = System.nanoTime();
-            long duracion = (fin - inicio) / 1_000_000; // Convertir a milisegundos
+            double duracion = (fin - inicio) / 1e6; // Convertir a milisegundos
 
             // Incrementar el contador de operaciones
             contadorOperaciones++;
