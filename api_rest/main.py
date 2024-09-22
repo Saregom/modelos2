@@ -13,13 +13,14 @@ task_list = [
     {"id": 2, "tarea": "Ir a misa y rezar por un 5.0 en modelos 2", "fecha": "2024-09-22"},
     {"id": 2, "tarea": "Hacer paro en la 40", "fecha": "2024-09-23"}
 ]
+
 @app.get("/tasks")
 def get_tasks():
     return task_list
 
 @app.post("/tasks")
 def add_tasks(tasks: Tasks):
-    new_task = tasks.model_dump() # para convertir los datos a 
+    new_task = tasks.model_dump() # para convertir los datos a diccionario
     new_task["id"] = len(task_list) + 1  # generacion de id automatico
     task_list.append(new_task)
     return new_task
