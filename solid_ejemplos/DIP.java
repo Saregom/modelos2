@@ -1,24 +1,23 @@
 package solid_ejemplos;
 
-
 // Interface para procesar pagos
 interface Payment {
     void pay(double amount);
 }
 
-// Clase concreta para el pago con tarjeta de credito
+// Clase concreta pago con tarjeta de credito
 class CreditCardPayment implements Payment {
     @Override
     public void pay(double amount) {
-        System.out.println("Pagando " + amount + " con tarjeta de crédito.");
+        System.out.println("Pagando " + amount + " con tarjeta de credito");
     }
 }
 
-// Clase concreta para el pago con PayPal
+// Clase concreta pago con PayPal
 class PayPalPayment implements Payment {
     @Override
     public void pay(double amount) {
-        System.out.println("Pagando " + amount + " con PayPal.");
+        System.out.println("Pagando " + amount + " con PayPal");
     }
 }
 
@@ -26,7 +25,6 @@ class PayPalPayment implements Payment {
 class PaymentProcessor {
     private Payment paymentMethod;
 
-    // Inyeccion de dependencia a través del constructor
     public PaymentProcessor(Payment paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
@@ -36,17 +34,16 @@ class PaymentProcessor {
     }
 }
 
-// Main para probar el código
 public class DIP {
     public static void main(String[] args) {
         System.out.println("Dependency Inversion Principle");
 
-        // Usando pago con tarjeta de crédito
+        // pago con tarjeta de credito
         Payment creditCardPayment = new CreditCardPayment();
         PaymentProcessor paymentProcessorCard = new PaymentProcessor(creditCardPayment);
         paymentProcessorCard.processPayment(100);
 
-        // Usando pago con PayPal
+        // pago con PayPal
         Payment payPalPayment = new PayPalPayment();
         PaymentProcessor paymentProcessorPayPal = new PaymentProcessor(payPalPayment);
         paymentProcessorPayPal.processPayment(200);

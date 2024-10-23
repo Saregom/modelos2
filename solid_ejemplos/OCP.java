@@ -1,11 +1,9 @@
 package solid_ejemplos;
 
-// Interface de calcular el área
 interface Figura {
     double calcularArea();
 }
 
-// Clase para el circulo
 class Circulo implements Figura {
     private double radio;
 
@@ -19,7 +17,6 @@ class Circulo implements Figura {
     }
 }
 
-// Clase para el rectángulo
 class Rectangulo implements Figura {
     private double ancho;
     private double largo;
@@ -35,14 +32,12 @@ class Rectangulo implements Figura {
     }
 }
 
-// Clase para el calculo de áreas
 class CalculadorArea {
     public double calcularArea(Figura figura) {
-        return figura.calcularArea(); // Se puede extender sin modificar esta clase
+        return figura.calcularArea(); 
     }
 }
 
-// Main para probar el código
 public class OCP {
     public static void main(String[] args) {
         System.out.println("Open/Closed Principle");

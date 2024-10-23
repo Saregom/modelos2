@@ -43,13 +43,10 @@ public class SRP {
         Book book = new Book("El Principito", "Antoine de Saint-Exupéry");
         BookPersistence persistence = new BookPersistence();
 
-        // Guardamos en archivo
         persistence.saveToFile(book, "libro.txt");
 
-        // Guardamos en base de datos
         persistence.saveToDatabase(book);
 
-        // Mostramos el libro guardado
         System.out.println("Libro guardado: " + book);
     }
 }
