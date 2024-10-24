@@ -1,4 +1,4 @@
-main :: IO ()
+main :: IO () -- Para correr: ghci ./main.hs
 main = print "Ejercicios de Haskell"
 
 -----------
