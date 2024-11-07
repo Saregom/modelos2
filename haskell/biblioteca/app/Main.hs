@@ -14,6 +14,7 @@ import Text.CSV (parseCSV)
 import Text.Regex.Posix ((=~))
 import System.IO (hFlush, stdout)
 
+-- Definicion de los tipos de datos
 type UsuarioID = Int
 type LibroID = Int
 type PrestamoID = Int
@@ -41,7 +42,8 @@ data Prestamo = Prestamo {
     libroIdFK :: LibroID,
     fechaPrestamo :: String,
     fechaEntrega :: String,
-    estado :: String
+    estado :: String,
+    comentario :: String
 } deriving (Show)
 
 type TablaUsuarios = Map.Map UsuarioID Usuario
@@ -60,8 +62,8 @@ crearLibro [idStr, tituloNuevo, autorNuevo, generoNuevo, anioStr] =
 crearLibro _ = error "Formato de libro incorrecto"
 
 crearPrestamo :: [String] -> Prestamo
-crearPrestamo [idStr, usuarioIdStr, libroIdStr, fechaPrestamoNuevo, fechaEntregaNuevo, estadoNuevo] =
-    Prestamo (read idStr) (read usuarioIdStr) (read libroIdStr) fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo
+crearPrestamo [idStr, usuarioIdStr, libroIdStr, fechaPrestamoNuevo, fechaEntregaNuevo, estadoNuevo, comentarioNuevo] =
+    Prestamo (read idStr) (read usuarioIdStr) (read libroIdStr) fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo comentarioNuevo
 crearPrestamo _ = error "Formato de prestamo incorrecto"
 
 -- Funciones para convertir las tablas a Map
@@ -75,8 +77,8 @@ convertirATablaPrestamos :: [[String]] -> TablaPrestamos
 convertirATablaPrestamos = Map.fromList . map (\p -> (prestamoId (crearPrestamo p), crearPrestamo p))
 
 
------------------ Funcionalidades -----------------
--- Funcion para buscar usuarios por libro
+----------------- Funcionalidades de app -----------------
+-- Buscar usuarios por libro
 buscarUsuarioPorCorreo :: TablaUsuarios -> String -> Maybe Usuario
 buscarUsuarioPorCorreo usuarios correoIngresado = 
     case filter (\u -> correo u == correoIngresado) (Map.elems usuarios) of
@@ -89,8 +91,8 @@ correoRegex = "[a-zA-Z0-9+._-]+@[a-zA-Z-]+\\.[a-z]+"
 esCorreoValido :: String -> Bool
 esCorreoValido correoAVerificar = correoAVerificar =~ correoRegex
 
-agregarPrestamo :: TablaUsuarios -> TablaLibros -> TablaPrestamos -> PrestamoID -> String -> LibroID -> String -> String -> String -> Maybe TablaPrestamos
-agregarPrestamo usuarios libros prestamos nuevoId correoIngresado lId fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo
+agregarPrestamo :: TablaUsuarios -> TablaLibros -> TablaPrestamos -> PrestamoID -> String -> LibroID -> String -> String -> String -> String -> Maybe TablaPrestamos
+agregarPrestamo usuarios libros prestamos nuevoId correoIngresado lId fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo comentarioNuevo
     | not (esCorreoValido correoIngresado) = Nothing  -- Validar formato del correo
     | otherwise =
         case buscarUsuarioPorCorreo usuarios correoIngresado of
@@ -98,9 +100,10 @@ agregarPrestamo usuarios libros prestamos nuevoId correoIngresado lId fechaPrest
             Just usuario -> 
                 if not (Map.member lId libros)
                 then Nothing  
-                else Just (Map.insert nuevoId (Prestamo nuevoId (usuarioId usuario) lId fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo) prestamos)
+                else Just (Map.insert nuevoId (Prestamo nuevoId (usuarioId usuario) lId fechaPrestamoNuevo fechaEntregaNuevo estadoNuevo comentarioNuevo) prestamos)
+--------
 
--- Funcion para buscar libros por nombre
+-- Buscar libros por nombre
 buscarLibrosPorNombre :: TablaLibros -> String -> [Libro]
 buscarLibrosPorNombre libros nombreParte = 
     filter (\libro -> nombreParte `isInfixOf` titulo libro) (Map.elems libros)
@@ -115,7 +118,17 @@ buscarUsuariosPorLibroNombre usuarios libros prestamos nombreParte =
                 libro = libros Map.! libroIdFK prestamo
             in (usuario, prestamo, titulo libro)
            ) prestamosConLibros
+--------
 
+-- Buscar y contar palabras en comentarios de prestamos para generar reporte
+contarFrecuenciasPalabras :: [String] -> [String] -> [(String, Int)]
+contarFrecuenciasPalabras palabras comentarios = 
+    map (\palabra -> (palabra, contarCoincidencias palabra comentarios)) palabras
+  where
+    contarCoincidencias :: String -> [String] -> Int
+    contarCoincidencias palabra = length . filter (\comentarioEvaluar -> comentarioEvaluar =~ palabra :: Bool)
+
+--------
 
 ------------- Menu para interactuar con el usuario -------------
 menu :: TablaUsuarios -> TablaLibros -> TablaPrestamos -> IO ()
@@ -123,12 +136,14 @@ menu usuarios libros prestamos = do
     putStrLn "\n-------- MENU --------"
     putStrLn "1. Buscar personas que poseen un libro"
     putStrLn "2. Ingresar nuevo prestamo"
-    putStrLn "3. Salir"
+    putStrLn "3. Obtener reporte de prestamos"
+    putStrLn "0. Salir"
     putStr "Elige una opcion: "
     hFlush stdout
     opcion <- getLine
 
     case opcion of
+        -- Buscar personas que poseen un libro
         "1" -> do
             putStr "Ingresa el nombre del libro o parte de este: "
             hFlush stdout
@@ -144,9 +159,12 @@ menu usuarios libros prestamos = do
                     putStrLn $ "Fecha Prestamo: " ++ fechaPrestamo prestamo
                     putStrLn $ "Fecha Entrega: " ++ fechaEntrega prestamo
                     putStrLn $ "Estado: " ++ estado prestamo
+                    putStrLn $ "Comentario: " ++ comentario prestamo
                 ) usuariosEncontrados 
 
             menu usuarios libros prestamos  -- Regresar al menu
+
+        -- Ingresar nuevo prestamo
         "2" -> do
             putStr "Ingresa el correo del usuario: "; hFlush stdout
             correoIngresado <- getLine
@@ -160,16 +178,22 @@ menu usuarios libros prestamos = do
             putStr "Ingresa la fecha de entrega (YYYY-MM-DD): "
             hFlush stdout
             fechaEntregaIngresada <- getLine
+            putStr "Agregar un comentario: "
+            hFlush stdout
+            comentarioIngresado <- getLine
+            -- si comentario es vacio, reemplazar la variable comentarioIngresado por "Sin comentario"
+            let comentarioIngresado2 = if comentarioIngresado == "" then "Sin comentario" else comentarioIngresado
+            print comentarioIngresado2
             
             let nuevoPrestamoId = Map.size prestamos + 1  -- Generar un nuevo ID
-            let resultado = agregarPrestamo usuarios libros prestamos nuevoPrestamoId correoIngresado libroIdIngresado fechaPrestamoIngresada fechaEntregaIngresada "En curso"
+            let resultado = agregarPrestamo usuarios libros prestamos nuevoPrestamoId correoIngresado libroIdIngresado fechaPrestamoIngresada fechaEntregaIngresada "En curso" comentarioIngresado2
             
             -- actualizar la tabla de prestamos e imprimmirla
             case resultado of
                 Nothing -> do
                     putStrLn "Error al agregar el prestamo (correo invalido, no existe, o libro no existe)"
                     menu usuarios libros prestamos
-                Just nuevaTabla -> do
+                Just nuevaTablaPrestamo -> do
                     putStrLn "\nPrestamo agregado con exito!"
                     putStrLn "La tabla actualizada de prestamos es: "
 
@@ -184,12 +208,30 @@ menu usuarios libros prestamos = do
                             putStrLn $ "Fecha Prestamo: " ++ fechaPrestamo prestamoMap
                             putStrLn $ "Fecha Entrega: " ++ fechaEntrega prestamoMap
                             putStrLn $ "Estado: " ++ estado prestamoMap
-                        ) (Map.toList nuevaTabla)
+                            putStrLn $ "Comentario: " ++ comentario prestamoMap
+                        ) (Map.toList nuevaTablaPrestamo)
                     
-                    
-                    menu usuarios libros nuevaTabla
+                    menu usuarios libros nuevaTablaPrestamo -- se pasa nuevaTablaPrestamo para "actualizar" la tabla de prestamos
 
-        "3" -> putStrLn "Programa finalizado."
+        -- Obtener reporte de prestamos
+        "3" -> do
+            print prestamos
+            let comentarios = map comentario (Map.elems prestamos)
+            let buenasPalabras = ["bueno", "buena", "buen", "eficiente", "excelente", "rapido", "rapida"]
+            let malasPalabras = ["malo", "mala", "mal", "deficiente", "tardado", "lento", "lenta"]
+
+            let frecuenciasCalificacionesBuenas  = contarFrecuenciasPalabras buenasPalabras comentarios
+            let frecuenciasCalificacionesMalas  = contarFrecuenciasPalabras malasPalabras comentarios
+
+            putStrLn "\nNumero de calificaciones positivas:"
+            mapM_ (\(palabra, frecuencia) -> putStrLn $ palabra ++ ": " ++ show frecuencia) frecuenciasCalificacionesBuenas
+            putStrLn "\nNumero de calificaciones negativas:"
+            mapM_ (\(palabra, frecuencia) -> putStrLn $ palabra ++ ": " ++ show frecuencia) frecuenciasCalificacionesMalas
+
+            menu usuarios libros prestamos  -- Regresar al menu
+
+        -- Salir del programa
+        "0" -> putStrLn "Programa finalizado."
         _   -> do
             putStrLn "Opcion no valida. Intenta de nuevo."
             menu usuarios libros prestamos  -- Regresar al menu
